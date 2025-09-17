@@ -47,8 +47,6 @@ if (params.input) { ch_input = file(params.input) }
 //include { INPUT_CHECK } from '../subworkflows/input_check'
 
 include { DORADO } from '../subworkflows/dorado/dorado.nf'
-
-include { INPUT_CHECK } from '../subworkflows/input_check.nf'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -66,12 +64,18 @@ include { INPUT_CHECK } from '../subworkflows/input_check.nf'
 */
 
 workflow METHLYATION {
-
-    
     
     ch_versions = Channel.empty()
 
-    INPUT_CHECK( ch_input )
+    InputReader input = new InputReader( params.input )
+
+    // Channel Format [[id: sampleName, base_model: baseModel, mod_model: modModel], [ pod5File] ]
+    Channel.fromList( input.channel ).set { ch_reads }
+
+    ch_reads.view { v -> "ch_read is ${v}" }   
+
+
+    /*INPUT_CHECK( ch_input )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
     ch_reads = INPUT_CHECK.out.reads
@@ -89,7 +93,7 @@ workflow METHLYATION {
         ch_reads
     )
 
-
+*/
 
 }
     //
