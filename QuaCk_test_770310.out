@@ -1,0 +1,229 @@
+
+ N E X T F L O W   ~  version 25.04.6
+
+Launching `main.nf` [peaceful_ampere] DSL2 - revision: f662bf8b24
+
+
+
+ ____________
+   __    __ 
+  |  |  | 
+  |__|  |__
+ _____\_____
+
+
+Core Nextflow options
+  runName                   : peaceful_ampere
+  containerEngine           : singularity
+  launchDir                 : /home/FCAM/hschober/methyl_pipeline/MethylForge/qc-nf
+  workDir                   : /home/FCAM/hschober/methyl_pipeline/MethylForge/qc-nf/work
+  projectDir                : /home/FCAM/hschober/methyl_pipeline/MethylForge/qc-nf
+  userName                  : hschober
+  profile                   : test,mantis
+  configFiles               : /home/FCAM/hschober/methyl_pipeline/MethylForge/qc-nf/nextflow.config
+
+Institutional config options
+  config_profile_name       : Dorado_test
+  config_profile_description: The UConn HPC profile
+  config_profile_contact    : noah.reid@uconn.edu
+  config_profile_url        : https://bioinformatics.uconn.edu/
+
+Max job request options
+  max_cpus                  : 64
+  max_memory                : 1 TB
+  max_time                  : 21d
+
+Generic options
+  validate_params           : false
+
+!! Only displaying parameters that differ from the pipeline defaults !!
+------------------------------------------------------
+If you use nf-core/genomeassembly for your analysis please cite:
+
+* The nf-core framework
+  https://doi.org/10.1038/s41587-020-0439-x
+
+* Software dependencies
+  https://github.com/nf-core/genomeassembly/blob/master/CITATIONS.md
+------------------------------------------------------
+[-        ] MAI…DORADO:BASE_MODEL_DOWNLOAD -
+[-        ] MAI…:DORADO:MOD_MODEL_DOWNLOAD -
+[-        ] MAI…N:DORADO:DORADO_BASECALLER -
+ch_read is [[id:test_name], /core/labs/Wegrzyn/ConiferGenomes/abfr/2024JUL24_Whetten_FF51_flongle/pod5/ATO869_96a514e1_bb51dfba_0.pod5]
+mod name is dna_r10.4.1_e8.2_130bps_sup@v4.3.0_5mCG_5hmCG@v1
+reads is [[id:test_name], /core/labs/Wegrzyn/ConiferGenomes/abfr/2024JUL24_Whetten_FF51_flongle/pod5/ATO869_96a514e1_bb51dfba_0.pod5]
+WARN: There's no process matching config selector: SAMPLESHEET_CHECK
+WARN: There's no process matching config selector: NANOPLOT
+WARN: There's no process matching config selector: KMER_FREQ
+WARN: There's no process matching config selector: GCE
+WARN: There's no process matching config selector: CENTRIFUGE_CENTRIFUGE
+WARN: There's no process matching config selector: RECENTRIFUGE_C
+WARN: There's no process matching config selector: SEQKIT_GREP
+WARN: There's no process matching config selector: QUAST
+WARN: There's no process matching config selector: BUSCO
+WARN: There's no process matching config selector: COMPLEASM
+WARN: There's no process matching config selector: MERQURY
+WARN: There's no process matching config selector: MERYL_COUNT
+WARN: There's no process matching config selector: GUNZIP
+WARN: There's no process matching config selector: FASTQC_2
+WARN: There's no process matching config selector: FASTQC_3
+WARN: There's no process matching config selector: FASTQC
+WARN: There's no process matching config selector: FASTP
+WARN: There's no process matching config selector: JELLYFISH_HIST
+WARN: There's no process matching config selector: JELLYFISH_KMER
+WARN: There's no process matching config selector: KRAKEN2_KRAKEN2_SR
+WARN: There's no process matching config selector: CUTADAPT
+WARN: There's no process matching config selector: KRAKEN2_KRAKEN2_PB
+WARN: There's no process matching config selector: RECENTRIFUGE_KR
+WARN: There's no process matching config selector: TOTAL_BASES_LR
+WARN: There's no process matching config selector: NANOPLOT_PB
+WARN: There's no process matching config selector: GENOMESCOPE2
+WARN: There's no process matching config selector: GENOMESCOPE2_ill
+WARN: There's no process matching config selector: GUNZIP_ill
+WARN: There's no process matching config selector: JELLYFISH_KMER_ill
+WARN: There's no process matching config selector: JELLYFISH_HIST_ill
+WARN: There's no process matching config selector: RECENTRIFUGE_KR_ill
+
+[-        ] MAI…DORADO:BASE_MODEL_DOWNLOAD -
+[-        ] MAI…:DORADO:MOD_MODEL_DOWNLOAD -
+[-        ] MAI…N:DORADO:DORADO_BASECALLER -
+ch_read is [[id:test_name], /core/labs/Wegrzyn/ConiferGenomes/abfr/2024JUL24_Whetten_FF51_flongle/pod5/ATO869_96a514e1_bb51dfba_0.pod5]
+mod name is dna_r10.4.1_e8.2_130bps_sup@v4.3.0_5mCG_5hmCG@v1
+reads is [[id:test_name], /core/labs/Wegrzyn/ConiferGenomes/abfr/2024JUL24_Whetten_FF51_flongle/pod5/ATO869_96a514e1_bb51dfba_0.pod5]
+Pulling Singularity image docker://nanoporetech/dorado:latest [cache /isg/shared/databases/nxf_mantis_singularity_cache/nanoporetech-dorado-latest.img]
+WARN: There's no process matching config selector: SAMPLESHEET_CHECK
+WARN: There's no process matching config selector: NANOPLOT
+WARN: There's no process matching config selector: KMER_FREQ
+WARN: There's no process matching config selector: GCE
+WARN: There's no process matching config selector: CENTRIFUGE_CENTRIFUGE
+WARN: There's no process matching config selector: RECENTRIFUGE_C
+WARN: There's no process matching config selector: SEQKIT_GREP
+WARN: There's no process matching config selector: QUAST
+WARN: There's no process matching config selector: BUSCO
+WARN: There's no process matching config selector: COMPLEASM
+WARN: There's no process matching config selector: MERQURY
+WARN: There's no process matching config selector: MERYL_COUNT
+WARN: There's no process matching config selector: GUNZIP
+WARN: There's no process matching config selector: FASTQC_2
+WARN: There's no process matching config selector: FASTQC_3
+WARN: There's no process matching config selector: FASTQC
+WARN: There's no process matching config selector: FASTP
+WARN: There's no process matching config selector: JELLYFISH_HIST
+WARN: There's no process matching config selector: JELLYFISH_KMER
+WARN: There's no process matching config selector: KRAKEN2_KRAKEN2_SR
+WARN: There's no process matching config selector: CUTADAPT
+WARN: There's no process matching config selector: KRAKEN2_KRAKEN2_PB
+WARN: There's no process matching config selector: RECENTRIFUGE_KR
+WARN: There's no process matching config selector: TOTAL_BASES_LR
+WARN: There's no process matching config selector: NANOPLOT_PB
+WARN: There's no process matching config selector: GENOMESCOPE2
+WARN: There's no process matching config selector: GENOMESCOPE2_ill
+WARN: There's no process matching config selector: GUNZIP_ill
+WARN: There's no process matching config selector: JELLYFISH_KMER_ill
+WARN: There's no process matching config selector: JELLYFISH_HIST_ill
+WARN: There's no process matching config selector: RECENTRIFUGE_KR_ill
+
+[-        ] MAI…DORADO:BASE_MODEL_DOWNLOAD -
+[-        ] MAI…:DORADO:MOD_MODEL_DOWNLOAD -
+[-        ] MAI…N:DORADO:DORADO_BASECALLER -
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ERROR ~ Error executing process > 'MAIN:METHLYATION:DORADO:MOD_MODEL_DOWNLOAD'
+
+Caused by:
+  Not a valid path value: './dorado/models'
+
+
+
+Container:
+  /isg/shared/databases/nxf_mantis_singularity_cache/nanoporetech-dorado-latest.img
+
+Tip: view the complete command output by changing to the process work dir and entering the command `cat .command.out`
+
+ -- Check '.nextflow.log' file for details
+
+[-        ] MAI…DORADO:BASE_MODEL_DOWNLOAD -
+[-        ] MAI…:DORADO:MOD_MODEL_DOWNLOAD -
+[-        ] MAI…N:DORADO:DORADO_BASECALLER -
+ERROR ~ Error executing process > 'MAIN:METHLYATION:DORADO:MOD_MODEL_DOWNLOAD'
+
+Caused by:
+  Not a valid path value: './dorado/models'
+
+
+
+Container:
+  /isg/shared/databases/nxf_mantis_singularity_cache/nanoporetech-dorado-latest.img
+
+Tip: view the complete command output by changing to the process work dir and entering the command `cat .command.out`
+
+ -- Check '.nextflow.log' file for details
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

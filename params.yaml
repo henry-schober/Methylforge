@@ -1,0 +1,14 @@
+sample              : "chr3_gibbon" 
+genome              :  "/core/projects/EBP/conservation/gen_assembly_pipeline/hoolock/hoolock_chrm_3/chrm_3_ont+pb+ill_ehg_output/02_assembly/long_read/flye/flye_chr3_gibbon_pb_T1.trim.fastq.unclassified.fastq.fasta"
+ont                 :  "/core/projects/EBP/conservation/gen_assembly_pipeline/hoolock/hoolock_chrm_3/chr3_ont.fastq.gz"
+pb                  :  "/core/projects/EBP/conservation/gen_assembly_pipeline/hoolock/hoolock_chrm_3/chr3_pb.fastq.gz"
+ill_1               :  "/core/projects/EBP/conservation/gen_assembly_pipeline/hoolock/hoolock_chrm_3/chr3_ill_R1.paired.fastq.gz"
+ill_2               :  "/core/projects/EBP/conservation/gen_assembly_pipeline/hoolock/hoolock_chrm_3/chr3_ill_R2.paired.fastq.gz"
+assembly_modules    : ["busco", "merqury"]
+longread_modules    : ["all"]
+shortread_modules   : ["none"]
+manual_genome_size  : "866000000"
+outdir              : "output"
+existing_assembly   : true
+longread_QC         : true
+ONT_lr              : true
