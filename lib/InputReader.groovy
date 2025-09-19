@@ -43,7 +43,7 @@ class InputReader {
         def ch = []
         rows.each { row ->
 
-            ch << [ [id: row.SAMPLE_NAME, base_model: row.BASE_MODEL], row.POD5_FILE]
+            ch << [ [id: row.SAMPLE_NAME], row.POD5_FILE, row.BASE_MODEL, row.MOD_MODEL ]
         }
         return ch
     }

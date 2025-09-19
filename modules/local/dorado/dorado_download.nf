@@ -1,26 +1,28 @@
 process DORADO_DOWNLOAD {
-    tag "$model_name"
+    tag "$mod_name"
     label 'process_medium'
 
     container 'nanoporetech/dorado' //this was autocompleted, unsure if accurate
 
     input:
-    val model_name
+    val mod_name
+    path mod_dir
 
     output:
-    path ("./dorado/models/${model_name}"), emit: model_path
+    path "${mod_dir}/${mod_name}", emit: model_path
     path "versions.yml" , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
+
     script:
     """
-    mkdir -p ./dorado/models/
+    mkdir -p "$mod_dir"
 
     dorado download \\
-        --model $model_name \\
-        --directory ./dorado/models/
+        --model $mod_name \\
+        --directory $mod_dir
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
