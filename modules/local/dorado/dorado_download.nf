@@ -6,10 +6,10 @@ process DORADO_DOWNLOAD {
 
     input:
     val mod_name
-    path mod_dir
+
 
     output:
-    path "${mod_dir}/${mod_name}", emit: model_path
+    path "./dorado/models/${mod_name}", emit: model_path
     path "versions.yml" , emit: versions
 
     when:
@@ -18,11 +18,11 @@ process DORADO_DOWNLOAD {
 
     script:
     """
-    mkdir -p "$mod_dir"
-
+    mkdir -p ./dorado/models
+    
     dorado download \\
         --model $mod_name \\
-        --directory $mod_dir
+        --directory ./dorado/models
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

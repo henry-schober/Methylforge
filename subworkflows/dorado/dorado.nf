@@ -19,7 +19,7 @@ workflow DORADO {
 
     ch_versions = Channel.empty()
 
-    ch_mod_dir = Channel.value(file("${projectDir}/dorado/models"))
+    //ch_mod_dir = Channel.value("${projectDir}/dorado/models")
 
 
     /*
@@ -87,7 +87,7 @@ workflow DORADO {
     no_base_model.concat(ch_base_name)
         .set { ch_base_model_missing }  // channel with missing model paths only
 
-    DORADO_DOWNLOAD_BASE(ch_base_model_missing, ch_mod_dir)
+    DORADO_DOWNLOAD_BASE(ch_base_model_missing)
     ch_versions = ch_versions.mix(DORADO_DOWNLOAD_BASE.out.versions)
     DORADO_DOWNLOAD_BASE.out.model_path
         .set { ch_base_model }
@@ -117,7 +117,7 @@ workflow DORADO {
     no_mod_model.concat(ch_mod_name)
         .set { ch_mod_model_missing }  // channel with missing model paths only
 
-    DORADO_DOWNLOAD_MOD(ch_mod_model_missing, ch_mod_dir)
+    DORADO_DOWNLOAD_MOD(ch_mod_model_missing)
     ch_versions = ch_versions.mix(DORADO_DOWNLOAD_MOD.out.versions)
     DORADO_DOWNLOAD_MOD.out.model_path
         .set { ch_mod_model }  
