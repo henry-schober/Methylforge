@@ -1,5 +1,5 @@
 //
-// This file holds several functions specific to the workflow/genomeassembly.nf in the nf-core/genomeassembly pipeline
+// This file holds several functions specific to the methylation worklfow
 //
 
 import nextflow.Nextflow
