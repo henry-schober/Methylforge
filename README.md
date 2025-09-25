@@ -10,7 +10,7 @@
 
 First pull the pipeline from github
 
-`nextflow pull henry-schober/methylforge -hub github -r main`
+`nextflow pull henry-schober/Methylforge -hub github -r main`
 
 #### The typical command to run is as follows:
 
