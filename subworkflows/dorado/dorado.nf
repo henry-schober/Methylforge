@@ -76,7 +76,7 @@ workflow DORADO {
         .set { ch_base_model }  // channel with valid model paths only
     
 
-    ch_base_name = Channel.value("dna_${params.pore_type}_${params.chemistry_type}_${params.translocation_speed}_sup@${params.model_version}")
+    ch_base_name = Channel.value("dna_${params.pore_type}_${params.chemistry_type}_${params.translocation_speed}_${params.model_type}@${params.model_version}")
     reads
         .filter { it[2] == null }          // modModel missing
         .map { sampleName, pod5File, baseModel, modModel ->
@@ -106,7 +106,7 @@ workflow DORADO {
         .set { ch_mod_model }  // channel with valid model paths only
     
 
-    ch_mod_name = Channel.value("dna_${params.pore_type}_${params.chemistry_type}_${params.translocation_speed}_sup@${params.model_version}_${params.modification_name}@${params.modification_version}")
+    ch_mod_name = Channel.value("dna_${params.pore_type}_${params.chemistry_type}_${params.translocation_speed}_${params.model_type}@${params.model_version}_${params.modification_name}@${params.modification_version}")
     reads
         .filter { it[3] == null }          // modModel missing
         .map { sampleName, pod5File, baseModel, modModel ->
