@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=QuaCk_test
+#SBATCH --job-name=Methylforge_test
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -c 4
