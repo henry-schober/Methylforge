@@ -9,7 +9,7 @@ process DORADO_DOWNLOAD {
 
 
     output:
-    path "./dorado/models/${mod_name}", emit: model_path
+    path "${mod_name}", emit: model_path
     path "versions.yml" , emit: versions
 
     when:
@@ -18,11 +18,10 @@ process DORADO_DOWNLOAD {
 
     script:
     """
-    mkdir -p ./dorado/models
+    
     
     dorado download \\
-        --model $mod_name \\
-        --directory ./dorado/models
+        --model $mod_name 
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

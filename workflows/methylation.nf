@@ -79,7 +79,9 @@ workflow METHLYATION {
     DORADO (
         ch_reads
     )
+    ch_versions = ch_versions.mix(DORADO.out.versions)
 
+    
 
 
 

@@ -4,6 +4,13 @@
 
 **MethylForge** is a DNA Methylation pipeline specifically for ONT Reads. 
 
+## Table of Contents
+- [Quick Start](#quick-start)
+- [Example](#example-run)
+- [Pipeline Output](#output)
+- [Citations](#citations)
+
+
 ## Quick Start
 
 ### Running the Pipeline
@@ -17,6 +24,7 @@ First pull the pipeline from github
 ```bash
 nextflow run main.nf \
   -profile test,mantis \
+  --input samplesheet_test.csv \
   -params-file params.yaml
 ```
 
@@ -51,6 +59,32 @@ modification_version   :  "v3"
 model_type             :  "sup"
 ```
 
+
+## Example run
+
+This pipelne comes preload with an example pod5 file found in `./sample_data/`
+
+First pull form github repo
+
+`nextflow pull henry-schober/Methylforge -hub gitlab -r main`
+
+Then run pipeline in CLI using this command
+
+`nextflow run henry-schober/Methylforge -r main.nf -profile test,mantis --input samplesheet_test.csv`
+
+## Output
+
+The Outputs are currently located in the output directory specificed in profile or `params.yaml`
+
+```
+├── DORADO
+│   ├── DORADO MODELS
+|   |   ├── DOWNLOAD
+|   |   |   ├── dorado models
+│   ├── BASE_CALLER
+│   |   ├── TEST NAME
+|   |   |   ├── bam file
+```
 
 ## Citations
 
