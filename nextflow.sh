@@ -14,4 +14,4 @@
 module load nextflow
 
 export TEMPDIR=$PWD/tmp
-nextflow run main.nf -profile test,mantis --input samplesheet_test.csv 
+nextflow run main.nf -profile test,mantis --input samplesheet_test.csv -resume

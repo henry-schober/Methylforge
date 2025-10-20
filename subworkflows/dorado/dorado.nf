@@ -8,6 +8,10 @@ include { DORADO_DOWNLOAD as DORADO_DOWNLOAD_BASE} from '../../modules/local/dor
 
 include { DORADO_BASECALLER } from '../../modules/local/dorado/dorado_basecaller.nf'
 
+include { SAMTOOLS_SORT } from '../../modules/nf-core/samtools/sort.nf'
+
+include { SAMTOOLS_INDEX } from '../../modules/nf-core/samtools/index/main.nf'
+
 
 workflow DORADO {
     
@@ -20,51 +24,6 @@ workflow DORADO {
     ch_versions = Channel.empty()
 
     //ch_mod_dir = Channel.value("${projectDir}/dorado/models")
-
-
-    /*
-    // initialize base model for dorado if not given
-    if (params.base_model != null) {
-        ch_base_model = Channel.fromPath(params.base_model)
-    } else {
-        base_model = Channel.value("dna_${params.pore_type}_${params.chemistry_type}_${params.translocation_speed}_sup@${params.model_version}")
-        BASE_MODEL_DOWNLOAD(base_model)
-        ch_versions = ch_versions.mix(BASE_MODEL_DOWNLOAD.out.versions) 
-        ch_base_model = BASE_MODEL_DOWNLOAD.out.model_path       
-    }
-
-
-
-    ch_reads.view { v -> "ch_read is ${v}" } 
-
-    ch_pod5 = ch_reads
-        .map { tuple(it[0], it[1]) } 
-
-    ch_pod5.view { v -> "ch_pod5 is ${v}" }
-
-
-    ch_base_model = ch_reads
-        .map { tuple(it[0], it[2]) } 
-    
-    ch_base_model.view { v -> "ch_base_model is ${v}" }
-
-/*
-    ch_mod_model = ch_reads.map { row -> 
-        def sample = row[0]
-        def mod_path = row[3]?.trim()
-
-        if (!mod_path) {
-            // Path missing → use the default dorado models directory
-            mod_path = file("${projectDir}/dorado/models")
-            mod_path.mkdirs()  // ensure the directory exists
-        } else {
-            mod_path = file(mod_path)  // wrap existing path as a file
-        }
-
-        tuple(sample, mod_path)
-    } 
-*/
-
 
 
 
@@ -163,8 +122,21 @@ workflow DORADO {
     ch_versions = ch_versions.mix(DORADO_BASECALLER.out.versions)
     ch_bam = DORADO_BASECALLER.out.output_bam 
 
+
+    SAMTOOLS_SORT(ch_bam)
+
+    SAMTOOLS_INDEX(SAMTOOLS_SORT.out.bam)
+    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
+    ch_bai = SAMTOOLS_INDEX.out.bai
+
+    ch_indexed_bam = SAMTOOLS_SORT.out.bam.join(ch_bai)
+
+    
+    ch_indexed_bam.view { v -> "indexed channel is ${v}" }
+
     emit:
     ch_bam  // channel: [ val(meta), path(bam) ]
+    ch_indexed_bam  // channel: [ val(meta), path(bam), path(bai) ]
 
 
     versions = ch_versions
