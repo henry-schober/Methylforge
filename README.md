@@ -84,6 +84,10 @@ The Outputs are currently located in the output directory specificed in profile 
 │   ├── BASE_CALLER
 │   |   ├── TEST NAME
 |   |   |   ├── bam file
+|   MODKIT
+|   ├──PILEUP
+|   |   ├── TEST NAME
+|   |   |   ├── bed file
 ```
 
 ## Citations

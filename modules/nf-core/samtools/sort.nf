@@ -20,6 +20,6 @@ process SAMTOOLS_SORT {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    samtools sort -n $input -o ${prefix}_sorted.bam
+    samtools sort $input -o ${prefix}_sorted.bam
     """
 }

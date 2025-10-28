@@ -82,11 +82,9 @@ workflow METHLYATION {
         ch_reads
     )
     ch_versions = ch_versions.mix(DORADO.out.versions)
+    
 
-
-    MODKIT(
-        DORADO.out.ch_indexed_bam
-    )
+    MODKIT(DORADO.out.ch_indexed_bam, DORADO.out.ch_fasta)
     ch_versions = ch_versions.mix(MODKIT.out.versions)
 
 

@@ -5,7 +5,8 @@ workflow MODKIT {
     
     take:
   
-        ch_indexed_bam // channel: [ val(meta), [ bam file ] ] will change, just want a plceholder for now
+        ch_indexed_bam // channel: [ [val(meta)], bam file, bai file ] will change, just want a placeholder for now
+        ch_fasta      // channel: [ val(meta), [ fasta file ] ] will change, just want a placeholder for now
            
     main:
 
@@ -14,7 +15,7 @@ workflow MODKIT {
 
 
 
-    MODKIT_PILEUP(ch_indexed_bam, [[],[],[]], [[],[]])
+    MODKIT_PILEUP(ch_indexed_bam, ch_fasta, [[],[]])
     ch_versions = ch_versions.mix(MODKIT_PILEUP.out.versions)
     ch_bed = MODKIT_PILEUP.out.bed
 

@@ -6,10 +6,10 @@ process DORADO_BASECALLER {
     //this was autocompleted, unsure if accurate
 
     input:
-    val batchsize
     path mod_model_path
     path base_model_path
     tuple val(meta), path(pod5_files)
+    tuple val(meta2), path(fasta)
 
     output:
     tuple val(meta), path ("*.bam"), emit: output_bam
@@ -19,12 +19,16 @@ process DORADO_BASECALLER {
     task.ext.when == null || task.ext.when
 
     script:
+    def args        = task.ext.args ?: ''
+    def prefix      = task.ext.prefix ?: "${meta.id}" // another fix for later
+    // def reference   = fasta ? "--reference ${fasta}" : "" //fix this for later
     """
     dorado basecaller \\
-        --batchsize $batchsize \\
+        $args \\
         --modified-bases-models $mod_model_path \\
         $base_model_path \\
-        $pod5_files | samtools view -bS - > ${mod_model_path}.bam
+        --reference $fasta \\
+        $pod5_files | samtools view -bS - > ${prefix}.bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
