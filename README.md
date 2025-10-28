@@ -4,6 +4,13 @@
 
 **MethylForge** is a DNA Methylation pipeline specifically for ONT Reads. 
 
+## Table of Contents
+- [Quick Start](#quick-start)
+- [Example](#example-run)
+- [Pipeline Output](#output)
+- [Citations](#citations)
+
+
 ## Quick Start
 
 ### Running the Pipeline
@@ -17,6 +24,7 @@ First pull the pipeline from github
 ```bash
 nextflow run main.nf \
   -profile test,mantis \
+  --input samplesheet_test.csv \
   -params-file params.yaml
 ```
 
@@ -25,10 +33,10 @@ nextflow run main.nf \
 `samplesheet.csv`:
 
 ```csv
-sample,pod5_file,base_model,mod_model
-test_name,/path/to/pod5_files_or_directory,/path/to/base_model,/path/to/modified_model
-test_name,/path/to/pod5_files_or_directory,/path/to/base_model,,
-test_name,/path/to/pod5_files_or_directory,,,
+sample,pod5_file,fasta_file,base_model,mod_model
+test_name,/path/to/pod5_files_or_directory,/path/to/fasta,/path/to/base_model,/path/to/modified_model
+test_name,/path/to/pod5_files_or_directory,,/path/to/base_model,,
+test_name,/path/to/pod5_files_or_directory,,,,
 ```
 
 > Both Sample Name and Pod5 files are mandatory inputs. Base model and modified model are optional if you have already downloaded the models and want to use that path. If not, models will be downloaded using parameters.
@@ -51,6 +59,36 @@ modification_version   :  "v3"
 model_type             :  "sup"
 ```
 
+
+## Example run
+
+This pipelne comes preload with an example pod5 file found in `./sample_data/`
+
+First pull form github repo
+
+`nextflow pull henry-schober/Methylforge -hub gitlab -r main`
+
+Then run pipeline in CLI using this command
+
+`nextflow run henry-schober/Methylforge -r main.nf -profile test,mantis --input samplesheet_test.csv`
+
+## Output
+
+The Outputs are currently located in the output directory specificed in profile or `params.yaml`
+
+```
+├── DORADO
+│   ├── DORADO MODELS
+|   |   ├── DOWNLOAD
+|   |   |   ├── dorado models
+│   ├── BASE_CALLER
+│   |   ├── TEST NAME
+|   |   |   ├── bam file
+|   MODKIT
+|   ├──PILEUP
+|   |   ├── TEST NAME
+|   |   |   ├── bed file
+```
 
 ## Citations
 

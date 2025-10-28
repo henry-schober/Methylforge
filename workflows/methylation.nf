@@ -48,6 +48,8 @@ if (params.input) { ch_input = file(params.input) }
 
 include { DORADO } from '../subworkflows/dorado/dorado.nf'
 
+include { MODKIT } from '../subworkflows/modkit/modkit.nf'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -79,7 +81,11 @@ workflow METHLYATION {
     DORADO (
         ch_reads
     )
+    ch_versions = ch_versions.mix(DORADO.out.versions)
+    
 
+    MODKIT(DORADO.out.ch_indexed_bam, DORADO.out.ch_fasta)
+    ch_versions = ch_versions.mix(MODKIT.out.versions)
 
 
 
