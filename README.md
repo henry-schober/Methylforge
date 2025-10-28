@@ -33,10 +33,10 @@ nextflow run main.nf \
 `samplesheet.csv`:
 
 ```csv
-sample,pod5_file,base_model,mod_model
-test_name,/path/to/pod5_files_or_directory,/path/to/base_model,/path/to/modified_model
-test_name,/path/to/pod5_files_or_directory,/path/to/base_model,,
-test_name,/path/to/pod5_files_or_directory,,,
+sample,pod5_file,fasta_file,base_model,mod_model
+test_name,/path/to/pod5_files_or_directory,/path/to/fasta,/path/to/base_model,/path/to/modified_model
+test_name,/path/to/pod5_files_or_directory,,/path/to/base_model,,
+test_name,/path/to/pod5_files_or_directory,,,,
 ```
 
 > Both Sample Name and Pod5 files are mandatory inputs. Base model and modified model are optional if you have already downloaded the models and want to use that path. If not, models will be downloaded using parameters.
