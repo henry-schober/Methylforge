@@ -24,7 +24,7 @@ First pull the pipeline from github
 ```bash
 nextflow run main.nf \
   -profile test,mantis \
-  --input samplesheet_test.csv \
+  --input samplesheet_test.csv (only if not included in yaml file) \
   -params-file params.yaml
 ```
 
@@ -88,6 +88,7 @@ The Outputs are currently located in the output directory specificed in profile 
 |   ├──PILEUP
 |   |   ├── TEST NAME
 |   |   |   ├── bed file
+|   |   |   ├── bedgraph file
 ```
 
 ## Citations
