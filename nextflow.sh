@@ -13,5 +13,6 @@
 
 module load nextflow
 
-export TEMPDIR=$PWD/tmp
-nextflow run main.nf -profile test,mantis --input samplesheet_test.csv -resume
+export _JAVA_OPTIONS="-Djava.io.tmpdir=/scratch/$USER/tmp"
+
+nextflow run main.nf -profile test,mantis --input samplesheet_test.csv 

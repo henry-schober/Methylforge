@@ -28,14 +28,19 @@ class RowChecker:
         ".pod5.gz",
         ".pod5",
         ".tar.gz",
+        ".fa.gz",
+        ".fasta.gz",
+        ".fasta",
+        ".fa",
     )
 
     def __init__(
         self,
-        sample_col="SAMPLE_NAME",
-        pod5_col="POD5_FILE",
-        base_model_col="BASE_MODEL",
-        mod_model_col="MOD_MODEL",
+        sample_col="sample",
+        first_col="pod5_file",
+        second_col="fasta",
+        third_col="base_model",
+        fourth_col="mod_model",
         **kwargs,
     ):
         """
@@ -44,16 +49,18 @@ class RowChecker:
         Args:
             sample_col (str): The name of the column that contains the sample name
                 (default "name").
-            pod5_col (str): The name of the column that contains the pod5 file path (default "file_pod5").
-            base_model_col (str): The name of the column that contains the base model path (if provided) (default "base_model").
-            mod_model_col (str): The name of the column that contains the mod model path (if provided) (default "mod_model"). 
+            first_col (str): The name of the column that contains the pod5 file path (default "pod5_file").
+            second_col (str): The name of the column that contains the fasta file path (if provided) (default "fasta").
+            third_col (str): The name of the column that contains the base model path (if provided) (default "base_model").
+            fourth_col (str): The name of the column that contains the mod model path (if provided) (default "mod_model"). 
 
         """
         super().__init__(**kwargs)
         self._sample_col = sample_col
-        self._pod5_col = pod5_col
-        self._base_model_col = base_model_col
-        self._mode_model_col = mod_model_col
+        self._first_col = first_col
+        self._second_col = second_col
+        self._third_col = third_col
+        self._fourth_col = fourth_col   
         self._seen = set()
         self.modified = []
 
@@ -67,8 +74,9 @@ class RowChecker:
 
         """
         self._validate_sample(row)
-        self._validate_pod5(row)
-        self._seen.add((row[self._sample_col], row[self._pod5_col]))
+        self._validate_first(row)
+        self._validate_second(row)
+        self._seen.add((row[self._sample_col], row[self._first_col]))
         self.modified.append(row)
 
     def _validate_sample(self, row):
@@ -78,19 +86,25 @@ class RowChecker:
         # Sanitize samples slightly.
         row[self._sample_col] = row[self._sample_col].replace(" ", "_")
 
-    def _validate_pod5(self, row):
+    def _validate_first(self, row):
         """Assert that the pod5 entry is non-empty and has the right format."""
-        if len(row[self._pod5_col]) <= 0:
+        if len(row[self._first_col]) <= 0:
             raise AssertionError("At least the pod5 file is required.")
-        self._validate_pod5_format(row[self._pod5_col])
+        self._validate_file_format(row[self._first_col])
+        
+    def _validate_second(self, row):
+        """Assert that the FASTA entry has the right format if it exists."""
+        if len(row[self._second_col]) > 0:
+            self._validate_file_format(row[self._second_col])
+
         
 
         
-    def _validate_pod5_format(self, filename):
-        """Assert that a given filename has one of the expected extensions."""
+    def _validate_file_format(self, filename):
+        """Assert that a given filename has one of the expected file extensions."""
         if not any(filename.endswith(extension) for extension in self.VALID_FORMATS):
             raise AssertionError(
-                f"The pod5 file has an unrecognized extension: {filename}\n"
+                f"The file has an unrecognized extension: {filename}\n"
                 f"It should be one of: {', '.join(self.VALID_FORMATS)}"
             )
             
@@ -160,24 +174,23 @@ def check_samplesheet(file_in, file_out):
         This function checks that the samplesheet follows the following structure,
         see also the `viral recon samplesheet`_::
 
-            SAMPLE_NAME,POD5_FILE,BASE_MODEL,MOD_MODEL
-            SAMPLE_PE,SAMPLE_PE_RUN1_1.pod5.gz,SAMPLE_PE_RUN1_BASE_MODEL,SAMPLE_PE_RUN1_MOD_MODEL,
-            SAMPLE_PE,SAMPLE_PE_RUN1_1.pod5.gz,SAMPLE_PE_RUN1_BASE_MODEL,,
-            SAMPLE_PE,SAMPLE_PE_RUN1_1.pod5.gz,,,
+            sample,fastq,fasta
+            SAMPLE_PE,SAMPLE_PE_RUN1_1.fastq.gz,SAMPLE_PE_RUN1_2.fastq.gz
+            SAMPLE_PE,SAMPLE_PE_RUN2_1.fastq.gz,SAMPLE_PE_RUN2_2.fastq.gz
+            SAMPLE_SE,SAMPLE_SE_RUN1_1.fastq.gz,
 
     .. _viral recon samplesheet:
         https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/samplesheet/samplesheet_test_illumina_amplicon.csv
 
     """
-    required_columns = {"SAMPLE_NAME", "POD5_FILE", "BASE_MODEL", "MOD_MODEL"}
+    required_columns = {"sample", "pod5_file", "fasta", "base_model", "mod_model"}
     # See https://docs.python.org/3.9/library/csv.html#id3 to read up on `newline=""`.
     with file_in.open(newline="") as in_handle:
-        reader = csv.DictReader(in_handle, dialect=sniff_format(in_handle))
+        reader = csv.DictReader(in_handle)
         # Validate the existence of the expected header columns.
         if not required_columns.issubset(reader.fieldnames):
-            req_cols = ",".join(required_columns)
+            req_cols = ", ".join(required_columns)
             logger.critical(f"The sample sheet **must** contain these column headers: {req_cols}.")
-            logger.critical(f"Detected headers: {reader.fieldnames}")
             sys.exit(1)
         # Validate each row.
         checker = RowChecker()
@@ -238,3 +251,4 @@ def main(argv=None):
 
 if __name__ == "__main__":
     sys.exit(main())
+

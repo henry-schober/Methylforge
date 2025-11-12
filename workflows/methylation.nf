@@ -44,7 +44,7 @@ if (params.input) { ch_input = file(params.input) }
 // MODULES
 
 // SUBWORKFLOWS
-//include { INPUT_CHECK } from '../subworkflows/input_check'
+include { INPUT_CHECK } from '../subworkflows/input_check'
 
 include { DORADO } from '../subworkflows/dorado/dorado.nf'
 
@@ -70,21 +70,28 @@ workflow METHLYATION {
     
     ch_versions = Channel.empty()
 
-    InputReader input = new InputReader( params.input )
+    INPUT_CHECK(ch_input)
 
-    // Channel Format [[id: sampleName, base_model: baseModel, mod_model: modModel], [ pod5File] ]
-    Channel.fromList( input.channel ).set { ch_reads }
+    ch_reads = INPUT_CHECK.out.reads
+    ch_reference_fasta = INPUT_CHECK.out.reference_fasta
+    ch_base_model = INPUT_CHECK.out.base_model
+    ch_mod_model = INPUT_CHECK.out.mod_model
+
+    ch_reads.view { v -> "ch_reads is ${v}" }
+    ch_reference_fasta.view { v -> "ch_reference_fasta is ${v}" }
+
 
 
 
 
     DORADO (
-        ch_reads
+        ch_reads, ch_reference_fasta, ch_base_model, ch_mod_model
     )
     ch_versions = ch_versions.mix(DORADO.out.versions)
+
     
 
-    MODKIT(DORADO.out.ch_indexed_bam, DORADO.out.ch_fasta)
+    MODKIT(DORADO.out.ch_indexed_bam, DORADO.out.ch_reference_fasta)
     ch_versions = ch_versions.mix(MODKIT.out.versions)
 
 

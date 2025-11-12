@@ -1,13 +1,14 @@
 process DORADO_BASECALLER {
     tag "$meta.id"
     label 'process_high'
+    label 'gpu'
 
     container 'nanoporetech/dorado'
     //this was autocompleted, unsure if accurate
 
     input:
-    path mod_model_path
-    path base_model_path
+    tuple val(meta3), path(mod_model_path)
+    tuple val(meta3), path(base_model_path)
     tuple val(meta), path(pod5_files)
     tuple val(meta2), path(fasta)
 
