@@ -7,12 +7,12 @@
 #SBATCH --qos=general
 #SBATCH --mail-user=henry.schober@uconn.edu
 #SBATCH --mem=20G
-#SBATCH --gres=gpu:A100:1
 #SBATCH -o %x_%j.out
 #SBATCH -e %x_%j.err
 
 module load nextflow
 
-export _JAVA_OPTIONS="-Djava.io.tmpdir=/scratch/$USER/tmp"
+export TEMPDIR=$PWD/tmp
+
 
 nextflow run main.nf -profile test,mantis --input samplesheet_test.csv 
