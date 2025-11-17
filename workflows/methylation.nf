@@ -43,6 +43,8 @@ if (params.input) { ch_input = file(params.input) }
 
 // MODULES
 
+include { POD5_CONVERT } from '../modules/local/pod5/pod5_convert.nf'
+
 // SUBWORKFLOWS
 include { INPUT_CHECK } from '../subworkflows/input_check'
 
@@ -72,20 +74,35 @@ workflow METHLYATION {
 
     INPUT_CHECK(ch_input)
 
-    ch_reads = INPUT_CHECK.out.reads
+    //ch_reads = INPUT_CHECK.out.reads
     ch_reference_fasta = INPUT_CHECK.out.reference_fasta
     ch_base_model = INPUT_CHECK.out.base_model
     ch_mod_model = INPUT_CHECK.out.mod_model
 
-    ch_reads.view { v -> "ch_reads is ${v}" }
+    //ch_reads.view { v -> "ch_reads is ${v}" }
     ch_reference_fasta.view { v -> "ch_reference_fasta is ${v}" }
 
+    ch_pod5 = Channel.empty()
 
+    ch_reads = INPUT_CHECK.out.reads
+        .branch { 
+            meta, files ->
+                is_fast5: meta.extension == "fast5"
+                    return [meta, files]
+                is_pod5: meta.extension == "pod5"
+                    return [meta, files]
+            }
+    ch_reads.is_fast5.view { v -> "fast5 reads channel is ${v}" }
+    ch_reads.is_pod5.view { v -> "pod5 reads channel is ${v}" }
+
+    POD5_CONVERT(ch_reads.is_fast5).converted_pod5.mix(ch_reads.is_pod5).set { ch_pod5 }
+
+    ch_pod5.view { v -> "converted/final pod5 channel is ${v}" }
 
 
 
     DORADO (
-        ch_reads, ch_reference_fasta, ch_base_model, ch_mod_model
+        ch_pod5, ch_reference_fasta, ch_base_model, ch_mod_model
     )
     ch_versions = ch_versions.mix(DORADO.out.versions)
 

@@ -55,8 +55,12 @@ def validate_csv_format(LinkedHashMap row) {
 
 // Function to get list of [ meta, [ pod5 ] ]
 def create_pod5_channel(LinkedHashMap row) {
+    def filename = java.nio.file.Paths.get(row.pod5_file).getFileName().toString()
+    
     def meta = [:]
     meta.id         = row.sample
+    meta.prefix = filename.contains('.') ? filename.substring(0, filename.lastIndexOf('.')) : filename
+    meta.extension = filename.contains('.') ? filename.substring(filename.lastIndexOf('.') + 1).toLowerCase() : ""
 
     def pod5_meta = []
 
@@ -65,11 +69,16 @@ def create_pod5_channel(LinkedHashMap row) {
         exit 1, "ERROR: Missing or invalid 'pod5_file' in the samplesheet for sample '${row.sample}'!"
     }
 
+
     // Ensure files exist
     if (!file(row.pod5_file).exists()) {
         exit 1, "ERROR: Read 1 pod5_file file does not exist!\n${row.pod5_file}"
     }
 
+    // Ensure valid file extension
+    if (!(meta.extension in ["fast5", "pod5"])) {
+        exit 1, "ERROR: File must be .fast5 or .pod5 — got: ${meta.extension}"
+    }
 
     pod5_meta = [ meta, [ file(row.pod5_file) ] ]
 
@@ -136,7 +145,7 @@ def create_mod_model_channel(LinkedHashMap row) {
         }
     } else {
         log.info "No Mod Model provided for sample '${row.sample}'."
-        mod_model_meta = [meta, ["dna_${params.pore_type}_${params.chemistry_type}_${params.translocation_speed}_${params.model_type}@${params.model_version}_${params.modification_name}@${params.modification_version}"]]
+        mod_model_meta = [meta, ["${params.mod_model_name}"]]
     }
 
     return mod_model_meta
