@@ -27,6 +27,8 @@ class RowChecker:
     VALID_FORMATS = (
         ".pod5.gz",
         ".pod5",
+        ".fast5.gz",
+        ".fast5",
         ".tar.gz",
         ".fa.gz",
         ".fasta.gz",
