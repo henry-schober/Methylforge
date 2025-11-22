@@ -1,26 +1,27 @@
-process DORADO_DOWNLOAD {
+process POD5_CONVERT {
     tag "$meta.id"
     label 'process_medium'
 
-    container 'nanoporetech/dorado:sha268dcb4cd02093e75cdc58821f8b93719c4255ed' //this was autocompleted, unsure if accurate
+    container 'quay.io/biocontainers/pod5:0.3.33--pyhdfd78af_0' 
 
     input:
-    tuple val(meta), val(model)
+    tuple val(meta), path(fast5_file)
 
 
     output:
-    tuple val(meta), path ("dna*"), emit: model_path
+    tuple val(meta), path ("*.pod5"), emit: converted_pod5
     path "versions.yml" , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
-
+    // write the prefix to the meta
     script:
-    def mod_name = model[0]
     """
-    dorado download \\
-        --model $mod_name 
+    pod5 convert fast5 $fast5_file \\
+        --output "${meta.prefix}.pod5" \\
+        --force
+
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -15,6 +15,12 @@ workflow INPUT_CHECK {
         .splitCsv ( header:true, sep:',' )
         .map { validate_csv_format(it); create_pod5_channel(it) }
         .set{reads}
+    
+    SAMPLESHEET_CHECK.out
+        .csv
+        .splitCsv ( header:true, sep:',' )
+        .map { validate_csv_format(it); create_fasta_channel(it) }
+        .set{reference_fasta}
 
     SAMPLESHEET_CHECK.out
         .csv
@@ -30,6 +36,7 @@ workflow INPUT_CHECK {
 
     emit:
     reads
+    reference_fasta
     base_model
     mod_model
     versions = SAMPLESHEET_CHECK.out.versions // channel: [ versions.yml ]
@@ -37,7 +44,7 @@ workflow INPUT_CHECK {
 
 // Function to validate CSV format before processing
 def validate_csv_format(LinkedHashMap row) {
-    def required_columns = ['sample', 'pod5', 'base_model', 'mod_model']
+    def required_columns = ['sample', 'pod5_file']
 
     required_columns.each { col ->
         if (!row.containsKey(col) || row[col] == null || row[col].trim() == "") {
@@ -48,31 +55,62 @@ def validate_csv_format(LinkedHashMap row) {
 
 // Function to get list of [ meta, [ pod5 ] ]
 def create_pod5_channel(LinkedHashMap row) {
+    def filename = java.nio.file.Paths.get(row.pod5_file).getFileName().toString()
+    
     def meta = [:]
     meta.id         = row.sample
+    meta.prefix = filename.contains('.') ? filename.substring(0, filename.lastIndexOf('.')) : filename
+    meta.extension = filename.contains('.') ? filename.substring(filename.lastIndexOf('.') + 1).toLowerCase() : ""
 
     def pod5_meta = []
 
     // Ensure 'pod5' is present and is a string
-    if (!row.containsKey('pod5') || !(row.pod5 instanceof String) || row.pod5.trim().isEmpty()) {
-        exit 1, "ERROR: Missing or invalid 'pod5' in the samplesheet for sample '${row.sample}'!"
+    if (!row.containsKey('pod5_file') || !(row.pod5_file instanceof String) || row.pod5_file.trim().isEmpty()) {
+        exit 1, "ERROR: Missing or invalid 'pod5_file' in the samplesheet for sample '${row.sample}'!"
     }
+
 
     // Ensure files exist
-    if (!file(row.pod5).exists()) {
-        exit 1, "ERROR: Read 1 pod5 file does not exist!\n${row.pod5}"
+    if (!file(row.pod5_file).exists()) {
+        exit 1, "ERROR: Read 1 pod5_file file does not exist!\n${row.pod5_file}"
     }
 
+    // Ensure valid file extension
+    if (!(meta.extension in ["fast5", "pod5"])) {
+        exit 1, "ERROR: File must be .fast5 or .pod5 — got: ${meta.extension}"
+    }
 
-    pod5_meta = [ meta, [ file(row.pod5) ] ]
+    pod5_meta = [ meta, [ file(row.pod5_file) ] ]
 
     return pod5_meta
+}
+
+// Function to get list of [ meta, [ fasta ]]
+def create_fasta_channel(LinkedHashMap row) {
+    def meta = [:]
+    meta.id         = row.sample
+
+    def fasta_meta = []
+
+    if (row.containsKey('fasta') && row.fasta instanceof String && !row.fasta.trim().isEmpty()) {
+        if (file(row.fasta).exists()) {
+            fasta_meta = [ meta, [ file(row.fasta) ] ]
+        } else {
+            log.error "FASTA file '${row.fasta}' does not exist for sample '${row.sample}'"
+            System.exit(1)
+        }
+    } else {
+        log.info "No FASTA file provided for sample '${row.sample}'."
+    }
+
+    return fasta_meta
 }
 
 // Function to get list of [ meta, [ base_model ]]
 def create_base_model_channel(LinkedHashMap row) {
     def meta = [:]
     meta.id         = row.sample
+    meta.has_base   = (row.base_model && row.base_model.trim()) // boolean flag
 
     def base_model_meta = []
 
@@ -85,6 +123,7 @@ def create_base_model_channel(LinkedHashMap row) {
         }
     } else {
         log.info "No Base Model provided for sample '${row.sample}'."
+        base_model_meta = [meta, ["${params.base_model_name}"]]
     }
 
     return base_model_meta
@@ -93,6 +132,7 @@ def create_base_model_channel(LinkedHashMap row) {
 def create_mod_model_channel(LinkedHashMap row) {
     def meta = [:]
     meta.id         = row.sample
+    meta.has_mod    = (row.mod_model && row.mod_model.trim()) // boolean flag
 
     def mod_model_meta = []
 
@@ -105,6 +145,7 @@ def create_mod_model_channel(LinkedHashMap row) {
         }
     } else {
         log.info "No Mod Model provided for sample '${row.sample}'."
+        mod_model_meta = [meta, ["${params.mod_model_name}"]]
     }
 
     return mod_model_meta
