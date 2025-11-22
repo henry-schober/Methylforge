@@ -74,6 +74,8 @@ workflow METHLYATION {
 
     INPUT_CHECK(ch_input)
 
+    ch_reference_fasta = Channel.empty()
+
     //ch_reads = INPUT_CHECK.out.reads
     ch_reference_fasta = INPUT_CHECK.out.reference_fasta
     ch_base_model = INPUT_CHECK.out.base_model
@@ -100,19 +102,16 @@ workflow METHLYATION {
     ch_pod5.view { v -> "converted/final pod5 channel is ${v}" }
 
 
-
     DORADO (
         ch_pod5, ch_reference_fasta, ch_base_model, ch_mod_model
     )
     ch_versions = ch_versions.mix(DORADO.out.versions)
 
     
-
-    MODKIT(DORADO.out.ch_indexed_bam, DORADO.out.ch_reference_fasta)
-    ch_versions = ch_versions.mix(MODKIT.out.versions)
-
-
-
+    if (!params.basecalling_only) {
+        MODKIT(DORADO.out.ch_indexed_bam, DORADO.out.ch_reference_fasta)
+        ch_versions = ch_versions.mix(MODKIT.out.versions)
+    } 
 }
     //
     // MODULE: MultiQC

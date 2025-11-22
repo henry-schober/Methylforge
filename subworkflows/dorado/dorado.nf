@@ -67,77 +67,32 @@ workflow DORADO {
 
     ch_mod_final.view { v -> "final mod model is ${v}" }
 
+    ch_indexed_bam = Channel.empty()
 
-/*
-    ch_with_model.view { v -> "base model with model channel is ${v}" }
-    ch_without_model.view { v -> "base model without model channel is ${v}" }
-
-    ch_base_model
-        .filter { meta, model_list -> meta.has_model }
-        .set { ch_base }
-
-    ch_base_model
-        .filter { meta, model_list -> !meta.has_model }
-        .set { ch_base_name }
-
-    ch_base_name.view {v -> "base model name channel is ${v}"}
-    DORADO_DOWNLOAD_BASE(ch_base_name)
-    ch_versions = ch_versions.mix(DORADO_DOWNLOAD_BASE.out.versions)
-    DORADO_DOWNLOAD_BASE.out.model_path
-        .set { ch_base_downloaded } 
-    
-    ch_base_downloaded.v {v -> "downloaded the model here ${v}"}
-
-    ch_base.view { v -> "base model is ${v}" }   
-*/
-
-
-
-/*
-
-    if (params.basecalling_model.contains("download")) {
-        ch_base_name = Channel.value("dna_${params.pore_type}_${params.chemistry_type}_${params.translocation_speed}_${params.model_type}@${params.model_version}")
-        ch_mod_name = Channel.value("dna_${params.pore_type}_${params.chemistry_type}_${params.translocation_speed}_${params.model_type}@${params.model_version}_${params.modification_name}@${params.modification_version}")
-        DORADO_DOWNLOAD_BASE(ch_base_name)
-        ch_versions = ch_versions.mix(DORADO_DOWNLOAD_BASE.out.versions)
-        DORADO_DOWNLOAD_BASE.out.model_path
-            .set { ch_base }
-
-        DORADO_DOWNLOAD_MOD(ch_mod_name)
-        ch_versions = ch_versions.mix(DORADO_DOWNLOAD_MOD.out.versions)
-        DORADO_DOWNLOAD_MOD.out.model_path
-            .set { ch_mod } 
-    } else if (params.basecalling_model.contains("provided")) {
-        ch_base_model.set { ch_base }
-        ch_mod_model.set { ch_mod }
+    if (params.basecalling_only) {
+        // run basecaller without the reference
+        DORADO_BASECALLER(ch_mod_final, ch_base_final, ch_reads, [[], []])
+        ch_versions = ch_versions.mix(DORADO_BASECALLER.out.versions)
+        ch_bam = DORADO_BASECALLER.out.output_bam
     } else {
-        exit 1, "ERROR: basecalling_model parameter must be either 'download' or 'provided'"
+        // run dorado basecaller
+        DORADO_BASECALLER(ch_mod_final, ch_base_final, ch_reads, ch_reference_fasta)
+        ch_versions = ch_versions.mix(DORADO_BASECALLER.out.versions)
+        ch_bam = DORADO_BASECALLER.out.output_bam 
+
+        ch_bam.view { v -> "bam channel is ${v}" }
+        
+        SAMTOOLS_SORT(ch_bam)
+
+        SAMTOOLS_INDEX(SAMTOOLS_SORT.out.bam)
+        ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
+        ch_bai = SAMTOOLS_INDEX.out.bai
+
+        SAMTOOLS_SORT.out.bam.join(ch_bai).set { ch_indexed_bam }
+
+        
+        ch_indexed_bam.view { v -> "indexed channel is ${v}" }
     }
-
-    ch_base.view { v -> "base model is ${v}" }
-    ch_mod.view { v -> "mod model is ${v}" }
-    */
-
-
-
-    // run dorado basecaller
-    DORADO_BASECALLER(ch_mod_final, ch_base_final, ch_reads, ch_reference_fasta)
-    ch_versions = ch_versions.mix(DORADO_BASECALLER.out.versions)
-    ch_bam = DORADO_BASECALLER.out.output_bam 
-
-    ch_bam.view { v -> "bam channel is ${v}" }
-    
-    SAMTOOLS_SORT(ch_bam)
-
-    SAMTOOLS_INDEX(SAMTOOLS_SORT.out.bam)
-    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
-    ch_bai = SAMTOOLS_INDEX.out.bai
-
-    ch_indexed_bam = SAMTOOLS_SORT.out.bam.join(ch_bai)
-
-    
-    ch_indexed_bam.view { v -> "indexed channel is ${v}" }
-
 
     emit:
     ch_bam  // channel: [ val(meta), path(bam) ]

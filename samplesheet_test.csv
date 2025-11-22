@@ -1,2 +1,2 @@
 sample,pod5_file,fasta,base_model,mod_model
-human_genome_2,/home/FCAM/hschober/methyl_pipeline/test_data/500.pod5,/isg/shared/databases/alignerIndex/animal/hg38_ucsc/hg38.fa,,
+human_genome_2,/home/FCAM/hschober/methyl_pipeline/test_data/fast5_fail/ALX598_fail_79d3d463_0.fast5,,,

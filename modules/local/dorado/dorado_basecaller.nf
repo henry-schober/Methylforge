@@ -3,7 +3,7 @@ process DORADO_BASECALLER {
     label 'process_high'
     label 'gpu'
 
-    container 'nanoporetech/dorado'
+    container 'nanoporetech/dorado:sha268dcb4cd02093e75cdc58821f8b93719c4255ed'
     //this was autocompleted, unsure if accurate
 
     input:
@@ -21,14 +21,14 @@ process DORADO_BASECALLER {
 
     script:
     def args        = task.ext.args ?: ''
-    def prefix      = task.ext.prefix ?: "${meta.id}" // another fix for later
-    // def reference   = fasta ? "--reference ${fasta}" : "" //fix this for later
+    def prefix      = task.ext.prefix ?: "${meta.prefix}" // another fix for later
+    def reference   = fasta ? "--reference ${fasta}" : "" //fix this for later
     """
     dorado basecaller \\
         $args \\
         --modified-bases-models $mod_model_path \\
         $base_model_path \\
-        --reference $fasta \\
+        $reference \\
         $pod5_files | samtools view -bS - > ${prefix}.bam
 
     cat <<-END_VERSIONS > versions.yml
