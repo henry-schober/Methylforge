@@ -55,34 +55,42 @@ def validate_csv_format(LinkedHashMap row) {
 
 // Function to get list of [ meta, [ pod5 ] ]
 def create_pod5_channel(LinkedHashMap row) {
-    def filename = java.nio.file.Paths.get(row.pod5_file).getFileName().toString()
-    
+
+    def dir = file(row.pod5_file)
+
+    // Ensure directory exists
+    if (!dir.exists() || !dir.isDirectory()) {
+        exit 1, "ERROR: 'pod5_file' must be a directory containing fast5/pod5 files:\n${row.pod5_file}"
+    }
+
+    // List files with allowed extensions
+    def files = dir.listFiles().findAll { f ->
+        f.name.toLowerCase().endsWith(".fast5") || f.name.toLowerCase().endsWith(".pod5")
+    }.collect { f ->
+        file(f)
+    }
+
+    if (files.isEmpty()) {
+        exit 1, "ERROR: Directory contains no .fast5 or .pod5 files:\n${row.pod5_file}"
+    }
+
+    // Determine extension — all files must match
+    def extensions = files.collect { f ->
+        f.getName().substring(f.getName().lastIndexOf('.') + 1).toLowerCase()
+    }.unique()
+
+    if (extensions.size() != 1) {
+        exit 1, "ERROR: All files in directory must share the same extension (.fast5 or .pod5).\nFound: ${extensions}"
+    }
+
+    def ext = extensions[0]  // "fast5" or "pod5"
+
+    // Build metadata
     def meta = [:]
-    meta.id         = row.sample
-    meta.prefix = filename.contains('.') ? filename.substring(0, filename.lastIndexOf('.')) : filename
-    meta.extension = filename.contains('.') ? filename.substring(filename.lastIndexOf('.') + 1).toLowerCase() : ""
+    meta.id = row.sample
+    meta.extension = ext
 
-    def pod5_meta = []
-
-    // Ensure 'pod5' is present and is a string
-    if (!row.containsKey('pod5_file') || !(row.pod5_file instanceof String) || row.pod5_file.trim().isEmpty()) {
-        exit 1, "ERROR: Missing or invalid 'pod5_file' in the samplesheet for sample '${row.sample}'!"
-    }
-
-
-    // Ensure files exist
-    if (!file(row.pod5_file).exists()) {
-        exit 1, "ERROR: Read 1 pod5_file file does not exist!\n${row.pod5_file}"
-    }
-
-    // Ensure valid file extension
-    if (!(meta.extension in ["fast5", "pod5"])) {
-        exit 1, "ERROR: File must be .fast5 or .pod5 — got: ${meta.extension}"
-    }
-
-    pod5_meta = [ meta, [ file(row.pod5_file) ] ]
-
-    return pod5_meta
+    return [ meta, files ]
 }
 
 // Function to get list of [ meta, [ fasta ]]

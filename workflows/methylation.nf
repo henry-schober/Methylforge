@@ -86,6 +86,9 @@ workflow METHLYATION {
 
     ch_pod5 = Channel.empty()
 
+    INPUT_CHECK.out.reads.view { v -> "INPUT_CHECK.out.reads is ${v}" }
+
+
     ch_reads = INPUT_CHECK.out.reads
         .branch { 
             meta, files ->
@@ -96,11 +99,34 @@ workflow METHLYATION {
             }
     ch_reads.is_fast5.view { v -> "fast5 reads channel is ${v}" }
     ch_reads.is_pod5.view { v -> "pod5 reads channel is ${v}" }
+    
 
-    POD5_CONVERT(ch_reads.is_fast5).converted_pod5.mix(ch_reads.is_pod5).set { ch_pod5 }
+    INPUT_CHECK.out.reads
+        .map { meta, files -> [[meta], files].combinations() }
+        .flatten()
+        .collate( 2 )
+        .set{ ch_flat_reads }
+
+    ch_flat_reads.view { v -> "pbconvert input channel is ${v}" }
+
+    ch_test = Channel.empty()
+    ch_test = ch_flat_reads.branch {
+            meta, files ->
+                is_fast5: meta.extension == "fast5"
+                    return [meta + [prefix:files.baseName], files]
+                is_pod5: meta.extension == "pod5"
+                    return [meta + [prefix:files.baseName], files]
+            }
+
+    ch_test.is_fast5.view { v -> "fast5 test channel is ${v}" }
+    ch_test.is_pod5.view { v -> "pod5 test channel is ${v}" }
+
+
+
+
+    POD5_CONVERT(ch_test.is_fast5).converted_pod5.mix(ch_test.is_pod5).set { ch_pod5 }
 
     ch_pod5.view { v -> "converted/final pod5 channel is ${v}" }
-
 
     DORADO (
         ch_pod5, ch_reference_fasta, ch_base_model, ch_mod_model
@@ -112,6 +138,8 @@ workflow METHLYATION {
         MODKIT(DORADO.out.ch_indexed_bam, DORADO.out.ch_reference_fasta)
         ch_versions = ch_versions.mix(MODKIT.out.versions)
     } 
+
+
 }
     //
     // MODULE: MultiQC

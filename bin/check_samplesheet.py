@@ -92,7 +92,8 @@ class RowChecker:
         """Assert that the pod5 entry is non-empty and has the right format."""
         if len(row[self._first_col]) <= 0:
             raise AssertionError("At least the pod5 file is required.")
-        self._validate_file_format(row[self._first_col])
+        if Path(row[self._first_col]).is_file():
+            self._validate_file_format(row[self._first_col])
         
     def _validate_second(self, row):
         """Assert that the FASTA entry has the right format if it exists."""

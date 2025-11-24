@@ -8,6 +8,8 @@ include { DORADO_DOWNLOAD as DORADO_DOWNLOAD_BASE} from '../../modules/local/dor
 
 include { DORADO_BASECALLER } from '../../modules/local/dorado/dorado_basecaller.nf'
 
+include { DORADO_BASECALLER_REF_FREE } from '../../modules/local/dorado/dorado_basecaller.nf'
+
 include { SAMTOOLS_SORT } from '../../modules/nf-core/samtools/sort.nf'
 
 include { SAMTOOLS_INDEX } from '../../modules/nf-core/samtools/index/main.nf'
@@ -67,13 +69,30 @@ workflow DORADO {
 
     ch_mod_final.view { v -> "final mod model is ${v}" }
 
+    ch_dorado_input = Channel.empty()
+    ch_bam = Channel.empty()
     ch_indexed_bam = Channel.empty()
+
+    ch_bases = ch_base_final.map { m, p -> p }
+    ch_mods  = ch_mod_final.map { m, p -> p }
+
+    ch_reads
+        .combine(ch_bases)
+        .combine(ch_mods)
+        .map { meta, read, base, mod ->
+            [ meta, read, base, mod ]
+        }
+        .set { ch_dorado_input }
+
+    ch_dorado_input.view { v -> "dorado input channel is ${v}" } 
+
+
 
     if (params.basecalling_only) {
         // run basecaller without the reference
-        DORADO_BASECALLER(ch_mod_final, ch_base_final, ch_reads, [[], []])
-        ch_versions = ch_versions.mix(DORADO_BASECALLER.out.versions)
-        ch_bam = DORADO_BASECALLER.out.output_bam
+        DORADO_BASECALLER_REF_FREE(ch_dorado_input)
+        ch_versions = ch_versions.mix(DORADO_BASECALLER_REF_FREE.out.versions)
+        ch_bam = DORADO_BASECALLER_REF_FREE.out.output_bam
     } else {
         // run dorado basecaller
         DORADO_BASECALLER(ch_mod_final, ch_base_final, ch_reads, ch_reference_fasta)
