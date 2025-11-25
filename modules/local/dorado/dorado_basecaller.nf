@@ -2,7 +2,7 @@ process DORADO_BASECALLER {
     tag "$meta.id"
     label 'process_high'
     label 'dorado'
-    module = "Dorado/0.9.6"
+    module = "Dorado/${params.dorado_version}"
 
     //container 'nanoporetech/dorado:sha268dcb4cd02093e75cdc58821f8b93719c4255ed'
     //this was autocompleted, unsure if accurate
@@ -43,7 +43,7 @@ process DORADO_BASECALLER_REF_FREE {
     tag "$meta.id"
     label 'process_high'
     label 'dorado'
-    module = "Dorado/0.9.6"
+    module = "Dorado/${params.dorado_version}"
 
     //container 'nanoporetech/dorado:sha268dcb4cd02093e75cdc58821f8b93719c4255ed'
     //this was autocompleted, unsure if accurate
