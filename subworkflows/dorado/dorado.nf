@@ -19,7 +19,7 @@ workflow DORADO {
     
     take:
   
-        ch_reads  // channel: [ val(meta), [ pod5 ] ] will change, just want a plceholder for now
+        ch_final_pod5  // channel: [ val(meta), [ pod5 ] ] will change, just want a plceholder for now
         ch_reference_fasta  // channel: [ val(meta), path(fasta) ]
         ch_base_model  // channel: [ val(meta), path(model) ]
         ch_mod_model  // channel: [ val(meta), path(model) ]
@@ -44,13 +44,13 @@ workflow DORADO {
                     return [meta, model]
         }
 
-    ch_base.no_model.view { v -> "base model without model channel is ${v}" }
-    ch_base.has_model.view { v -> "base model with model channel is ${v}" }
+    // ch_base.no_model.view { v -> "base model without model channel is ${v}" }
+    // ch_base.has_model.view { v -> "base model with model channel is ${v}" }
 
 
     DORADO_DOWNLOAD_BASE(ch_base.no_model).model_path.mix(ch_base.has_model).set { ch_base_final }
 
-    ch_base_final.view { v -> "final base model is ${v}" }
+    // ch_base_final.view { v -> "final base model is ${v}" }
 
     ch_mod = ch_mod_model
         .branch { 
@@ -76,7 +76,7 @@ workflow DORADO {
     ch_bases = ch_base_final.map { m, p -> p }
     ch_mods  = ch_mod_final.map { m, p -> p }
 
-    ch_reads
+    ch_final_pod5
         .combine(ch_bases)
         .combine(ch_mods)
         .map { meta, read, base, mod ->
@@ -84,8 +84,8 @@ workflow DORADO {
         }
         .set { ch_dorado_input }
 
-    ch_dorado_input.view { v -> "dorado input channel is ${v}" } 
 
+    ch_dorado_input.view { v -> "dorado input channel is ${v}" } 
 
 
     if (params.basecalling_only) {
@@ -95,7 +95,7 @@ workflow DORADO {
         ch_bam = DORADO_BASECALLER_REF_FREE.out.output_bam
     } else {
         // run dorado basecaller
-        DORADO_BASECALLER(ch_mod_final, ch_base_final, ch_reads, ch_reference_fasta)
+        DORADO_BASECALLER(ch_dorado_input, ch_reference_fasta)
         ch_versions = ch_versions.mix(DORADO_BASECALLER.out.versions)
         ch_bam = DORADO_BASECALLER.out.output_bam 
 
@@ -112,6 +112,7 @@ workflow DORADO {
         
         ch_indexed_bam.view { v -> "indexed channel is ${v}" }
     }
+
 
     emit:
     ch_bam  // channel: [ val(meta), path(bam) ]

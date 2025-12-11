@@ -23,7 +23,7 @@ process MODKIT_PILEUP {
 
     script:
     def args        = task.ext.args ?: ''
-    def prefix      = task.ext.prefix ?: "${meta.id}"
+    def prefix      = task.ext.prefix ?: "${meta.prefix}"
     def reference   = fasta ? "--ref ${fasta}" : ""
     def include_bed = bed ? "--include-bed ${bed}" : ''
 

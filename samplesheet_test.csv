@@ -1,2 +1,2 @@
 sample,pod5_file,fasta,base_model,mod_model
-Abies_fraseri,/home/FCAM/hschober/methyl_pipeline/test_data/fast5_pass,,,
+Pinus_lambertiana,/archive/labs/wegrzyn/genomes/conifers/pila_2023/2020DEC28_SPineC_delatorre_long_PAG06538/2020DEC28_SPineC_delatorre_long_PAG06538/20201228_1832_2D_PAG06538_b5585638/fast5_fail,/core/labs/Wegrzyn/Gymnosperms/eviann/Pila/combined_masked_sugarpine.fa,,

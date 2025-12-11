@@ -29,3 +29,22 @@ process POD5_CONVERT {
     END_VERSIONS
     """
 }
+
+process COLLECT_POD5 {
+    tag "$meta.id"
+    label 'process_medium'
+
+    container 'quay.io/biocontainers/pod5:0.3.33--pyhdfd78af_0' 
+
+    input:
+    tuple val(meta), path(pod5_list)
+
+    output:
+    tuple val(meta), path("collected_pod5"), emit: collected_pod5
+
+    script:
+    """
+    mkdir -p collected_pod5
+    ln -s ${pod5_list.join(' ')} collected_pod5/
+    """
+}

@@ -1,6 +1,5 @@
 process DORADO_BASECALLER {
     tag "$meta.id"
-    label 'process_high'
     label 'dorado'
     module = "Dorado/${params.dorado_version}"
 
@@ -8,7 +7,7 @@ process DORADO_BASECALLER {
     //this was autocompleted, unsure if accurate
 
     input:
-    tuple val(meta), path(pod5_files) path(base_model_path), path(mod_model_path)
+    tuple val(meta), path(pod5_files, stageAs: "pod5_dir/*"), path(base_model_path), path(mod_model_path)
     tuple val(meta2), path(fasta)
 
     output:
@@ -27,10 +26,11 @@ process DORADO_BASECALLER {
 
     dorado basecaller \\
         $args \\
+        --recursive \\
         --modified-bases-models $mod_model_path \\
-        $base_model_path \\
         $reference \\
-        $pod5_files | samtools view -bS - > ${prefix}.bam
+        $base_model_path \\
+        pod5_dir | samtools view -bS - > ${prefix}.bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -41,7 +41,6 @@ process DORADO_BASECALLER {
 
 process DORADO_BASECALLER_REF_FREE {
     tag "$meta.id"
-    label 'process_high'
     label 'dorado'
     module = "Dorado/${params.dorado_version}"
 
@@ -49,7 +48,7 @@ process DORADO_BASECALLER_REF_FREE {
     //this was autocompleted, unsure if accurate
 
     input:
-    tuple val(meta), path(pod5_files), path(base_model_path), path(mod_model_path)
+    tuple val(meta), path(pod5_files, stageAs: "pod5_dir/*"), path(base_model_path), path(mod_model_path)
 
     output:
     tuple val(meta), path ("*.bam"), emit: output_bam
@@ -67,9 +66,10 @@ process DORADO_BASECALLER_REF_FREE {
 
     dorado basecaller \\
         $args \\
+        --recursive \\
         --modified-bases-models $mod_model_path \\
         $base_model_path \\
-        $pod5_files | samtools view -bS - > ${prefix}.bam
+        pod5_dir | samtools view -bS - > ${prefix}.bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

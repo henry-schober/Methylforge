@@ -45,6 +45,8 @@ if (params.input) { ch_input = file(params.input) }
 
 include { POD5_CONVERT } from '../modules/local/pod5/pod5_convert.nf'
 
+include { COLLECT_POD5 } from '../modules/local/pod5/pod5_convert.nf'
+
 // SUBWORKFLOWS
 include { INPUT_CHECK } from '../subworkflows/input_check'
 
@@ -82,11 +84,11 @@ workflow METHLYATION {
     ch_mod_model = INPUT_CHECK.out.mod_model
 
     //ch_reads.view { v -> "ch_reads is ${v}" }
-    ch_reference_fasta.view { v -> "ch_reference_fasta is ${v}" }
+    // ch_reference_fasta.view { v -> "ch_reference_fasta is ${v}" }
 
     ch_pod5 = Channel.empty()
 
-    INPUT_CHECK.out.reads.view { v -> "INPUT_CHECK.out.reads is ${v}" }
+    // INPUT_CHECK.out.reads.view { v -> "INPUT_CHECK.out.reads is ${v}" }
 
 
     ch_reads = INPUT_CHECK.out.reads
@@ -97,8 +99,8 @@ workflow METHLYATION {
                 is_pod5: meta.extension == "pod5"
                     return [meta, files]
             }
-    ch_reads.is_fast5.view { v -> "fast5 reads channel is ${v}" }
-    ch_reads.is_pod5.view { v -> "pod5 reads channel is ${v}" }
+    // ch_reads.is_fast5.view { v -> "fast5 reads channel is ${v}" }
+    // ch_reads.is_pod5.view { v -> "pod5 reads channel is ${v}" }
     
 
     INPUT_CHECK.out.reads
@@ -107,7 +109,7 @@ workflow METHLYATION {
         .collate( 2 )
         .set{ ch_flat_reads }
 
-    ch_flat_reads.view { v -> "pbconvert input channel is ${v}" }
+    // ch_flat_reads.view { v -> "pbconvert input channel is ${v}" }
 
     ch_test = Channel.empty()
     ch_test = ch_flat_reads.branch {
@@ -118,22 +120,42 @@ workflow METHLYATION {
                     return [meta + [prefix:files.baseName], files]
             }
 
-    ch_test.is_fast5.view { v -> "fast5 test channel is ${v}" }
-    ch_test.is_pod5.view { v -> "pod5 test channel is ${v}" }
+    // ch_test.is_fast5.view { v -> "fast5 test channel is ${v}" }
+    // ch_test.is_pod5.view { v -> "pod5 test channel is ${v}" }
 
 
 
 
     POD5_CONVERT(ch_test.is_fast5).converted_pod5.mix(ch_test.is_pod5).set { ch_pod5 }
 
-    ch_pod5.view { v -> "converted/final pod5 channel is ${v}" }
+    ch_pod5
+        .collect(flat: false)
+        .map { list_of_pairs ->
+            def first_meta = list_of_pairs[0][0]
+            def cleaned_prefix = first_meta.prefix.replaceAll(/_\d+$/, '')
+            def meta_list = [
+                id: first_meta.id,
+                extension: first_meta.extension,
+                prefix: cleaned_prefix
+            ]
+            def file_list = list_of_pairs.collect { it[1] }
+            return [ meta_list, file_list ]
+        }
+        .set { ch_final_pod5 }
+
+    ch_final_pod5.view { v -> "converted/final pod5 channel is ${v}" }
+
+    //COLLECT_POD5( ch_final_pod5 ).collected_pod5.set { ch_pod5_dir }
+
+    //ch_pod5_dir.view { v -> "final collected pod5 channel is ${v}" }
+
 
     DORADO (
-        ch_pod5, ch_reference_fasta, ch_base_model, ch_mod_model
+        ch_final_pod5, ch_reference_fasta, ch_base_model, ch_mod_model
     )
     ch_versions = ch_versions.mix(DORADO.out.versions)
 
-    
+    DORADO.out.ch_reference_fasta.view { v -> "DORADO.out.ch_reference_fasta is ${v}" }
     if (!params.basecalling_only) {
         MODKIT(DORADO.out.ch_indexed_bam, DORADO.out.ch_reference_fasta)
         ch_versions = ch_versions.mix(MODKIT.out.versions)

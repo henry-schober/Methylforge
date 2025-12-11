@@ -14,7 +14,7 @@ workflow MODKIT {
 
 
 
-
+    ch_fasta.view { v -> "ch_fasta in modkit subworkflow is ${v}" }
     MODKIT_PILEUP(ch_indexed_bam, ch_fasta, [[],[]])
     ch_versions = ch_versions.mix(MODKIT_PILEUP.out.versions)
     ch_bed = MODKIT_PILEUP.out.bed
